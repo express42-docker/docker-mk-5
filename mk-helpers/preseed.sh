@@ -16,6 +16,7 @@ eval $(docker-machine env $machine)
 cp -r $SRC_CERTS $DST_CERTS
 printf "\n\n\nСоздаем образ для CI агента\n"
 docker build -t $DOCKERHUB_USER/docker:git-compose images/docker-git-compose
+docker login -u $DOCKERHUB_USER -p $DOCKERHUB_PASSWORD
 docker push $DOCKERHUB_USER/docker:git-compose
 
 # Setup infrastructure
