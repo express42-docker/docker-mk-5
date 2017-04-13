@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+# This script clone blog repos to parent_dir/module5_app
+
 source data/creds.env
 source mk-helpers/env.vars
 eval $(docker-machine env $machine)

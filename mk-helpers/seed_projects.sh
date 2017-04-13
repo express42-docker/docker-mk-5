@@ -1,3 +1,6 @@
+#!/usr/bin/env bash
+# This script restore saved configuration to Gitlab.
+
 source data/creds.env
 source mk-helpers/env.vars
 eval $(docker-machine env $machine)
