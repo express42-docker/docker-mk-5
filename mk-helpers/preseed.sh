@@ -24,7 +24,7 @@ printf "\n\n\nСоздаем пользователя и обновляем ре
 docker-compose up -d
 
 while [ $(curl --write-out %{http_code} --silent --output /dev/null http://$module5_host/users/sign_in) -ne 200 ]; do
-  # Убираем возможно регистрации на время мастер-класса
+  # Убираем возможность регистрации на время мастер-класса
   docker-compose exec -T gitlab gitlab-rails runner "ApplicationSetting.last.update_attributes(signup_enabled: false)" > /dev/null
 
   # Создаем пользователя

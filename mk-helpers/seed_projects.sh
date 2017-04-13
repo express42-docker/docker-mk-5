@@ -6,7 +6,7 @@ eval $(docker-machine env $machine)
 BACKUP=1488485820_2017_03_02
 BACKUP_FILE="$BACKUP"_gitlab_backup.tar
 
-printf "Подгтовка проектов\n"
+printf "Подготовка проектов\n"
 docker-compose exec gitlab wget https://s3.eu-central-1.amazonaws.com/docker-mk-mar-2017/module5/$BACKUP_FILE -P /var/opt/gitlab/backups/
 
 printf "Импортируем проекты\nОтвечаем 'yes' на вопросы из терминала\n"
