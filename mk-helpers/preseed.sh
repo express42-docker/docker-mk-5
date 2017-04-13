@@ -28,7 +28,7 @@ while [ $(curl --write-out %{http_code} --silent --output /dev/null http://$modu
   docker-compose exec -T gitlab gitlab-rails runner "ApplicationSetting.last.update_attributes(signup_enabled: false)" > /dev/null
 
   # Создаем пользователя
-  docker-compose exec -T gitlab gitlab-rails runner "user = User.find_by(email: 'admin@example.com'); user.password = \"$GITLAB_PASSWORD\"; user.password_confirmation = 'dockermk'; user.password_automatically_set = false; user.save" > /dev/null
+  docker-compose exec -T gitlab gitlab-rails runner "user = User.find_by(email: 'admin@example.com'); user.password = \"$GITLAB_PASSWORD\"; user.password_confirmation = \"$GITLAB_PASSWORD\"; user.password_automatically_set = false; user.save" > /dev/null
 done
 
 printf "\n\nАдрес вашего сервера: $module5_host\n"
