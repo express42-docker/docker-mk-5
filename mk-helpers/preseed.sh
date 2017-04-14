@@ -10,7 +10,7 @@ DST_CERTS=images/docker-git-compose/certs
 printf "\nСоздаем сервер с Gitlab CI\n"
 case $1 in
   'p' ) docker-machine create -d parallels --parallels-cpu-count 4 --parallels-disk-size "8440" --parallels-memory "4048" $machine;;
-  'v' ) docker-machine create -d virtualbox --virtualbox-cpu-count 2 --virtualbox-disk-size "8440" --virtualbox-memory "4048" $machine;;
+  'v' ) docker-machine create -d virtualbox --virtualbox-cpu-count 4 --virtualbox-disk-size "8440" --virtualbox-memory "4048" $machine;;
   * ) docker-machine create -d amazonec2 --amazonec2-root-size "60" --amazonec2-instance-type "t2.large" --amazonec2-region "eu-central-1" --amazonec2-subnet-id "subnet-ccbf57a5" $machine;;
 esac
 
