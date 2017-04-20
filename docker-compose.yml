@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   gitlab:
-    image: 'gitlab/gitlab-ce:8.16.4-ce.0'
+    image: 'gitlab/gitlab-ce:9.0.5-ce.0'
     restart: always
     hostname: ${module5_host}
     environment:
