@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   gitlab:
-    image: 'gitlab/gitlab-ce:9.0.5-ce.0'
+    image: 'gitlab/gitlab-ce:9.0.6-ce.0'
     restart: always
     hostname: ${module5_host}
     environment:
@@ -10,12 +10,17 @@ services:
         external_url "http://${module5_host}"
         # other configs
     ports:
+      -  '9090:9090'
+      -  '9168:9618'
       - '80:80'
     volumes:
       - '/srv/docker/gitlab/config:/etc/gitlab'
       - '/srv/docker/gitlab/logs:/var/log/gitlab'
       - '/srv/docker/gitlab/data:/var/opt/gitlab'
-
+    networks:
+      default:
+        aliases:
+          - gitlab-registry.local
   gitlab_runner:
     image: gitlab/gitlab-runner:v1.10.4
     healthcheck:
@@ -28,6 +33,7 @@ services:
       - /srv/docker/gitlab-runner-etc:/etc/gitlab-runner
       - /var/run/docker.sock:/var/run/docker.sock
     environment:
+      - METRICS_SERVER=gitlab_runner:9999
       - CI_SERVER_URL=http://gitlab/ci
       - REGISTRATION_TOKEN=${GITLAB_REGISTRATION_TOKEN}
       - CI_SERVER_TOKEN=${GITLAB_CI_SERVER_TOKEN}
@@ -35,8 +41,7 @@ services:
       - RUNNER_NAME=dockermk
       - RUNNER_EXECUTOR=docker
       - DOCKER_PRIVILEGED=true
-      - DOCKER_CERT_PATH=/docker
-      - DOCKER_VOLUMES=/var/run/docker.sock:/var/run/docker.sock
+      - DOCKER_NETWORK_MODE=chromkodockermk5_default
     depends_on:
       - gitlab
     restart: always
