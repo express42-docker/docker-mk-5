@@ -22,7 +22,7 @@ services:
         aliases:
           - gitlab-registry.local
   gitlab_runner:
-    image: gitlab/gitlab-runner:v1.10.4
+    image: gitlab/gitlab-runner:v9.1.0
     healthcheck:
       test: ["CMD", "curl", "-f", "http://gitlab", "||", "exit 1"]
       interval: 1m

@@ -15,11 +15,12 @@ provision() {
     esac
   fi
     # Set machine vars
-    source mk-helpers/env.vars
+      source mk-helpers/env.vars
     # Setup infrastructure
     docker-compose up -d
 
     printf "\n\n\nСоздаем пользователя и обновляем регистрацию\n"
+
 
     while [ $(curl --write-out %{http_code} --silent --output /dev/null http://$module5_host/users/sign_in) -ne 200 ]; do
       # Убираем возможность регистрации на время мастер-класса
@@ -28,6 +29,7 @@ provision() {
       # Создаем пользователя
       docker-compose exec -T gitlab gitlab-rails runner "user = User.find_by(email: 'admin@example.com'); user.password = \"$GITLAB_PASSWORD\"; user.password_confirmation = \"$GITLAB_PASSWORD\"; user.password_automatically_set = false; user.save" > /dev/null
     done
+
     printf "\n\n\nГотовим окружение к использованию  локального docker registry\n"
     #####  Prepare environment for local registry
     if ! docker-machine ssh $machine ping $DOCKER_REGISTRY -c 1 -q  ; then
@@ -35,14 +37,15 @@ provision() {
     fi
 
     if ! docker-machine ssh $machine test -e /etc/docker/daemon.json  ; then
+      docker-machine ssh $machine "echo {\'insecure-registries\':[\'$DOCKER_REGISTRY\']} |  tr \"'\" '\"' | sudo  tee /etc/docker/daemon.json"
+      docker-machine ssh $machine sudo /etc/init.d/docker restart
+    fi
       file=/srv/docker/gitlab/config/gitlab.rb
+
       docker-machine ssh $machine "sudo sed -i 's/.*registry_external_url.*/registry_external_url \"http:\/\/$DOCKER_REGISTRY\"/' $file "
       docker-machine ssh $machine "sudo sed -i '/^#.*registry_enabled/s/^#//' $file"
       docker-machine ssh $machine "sudo sed -i '/^#.*registry\[.enable.\]/s/^#//' $file"
-      docker-machine ssh $machine "echo {\'insecure-registries\':[\'$DOCKER_REGISTRY\']} |  tr \"'\" '\"' | sudo  tee /etc/docker/daemon.json"
-      docker-machine ssh $machine sudo /etc/init.d/docker restart
       docker-compose restart gitlab
-    fi
 
     printf "\n\nАдрес вашего сервера: $module5_host\n"
     printf "Gitlab login: $GITLAB_USER\n"
@@ -55,8 +58,7 @@ seed() {
   #####
   printf "Подготовка проектов\n"
   docker-machine scp mk-helpers/$BACKUP_FILE  $machine:/home/docker
-  docker-machine ssh $machine "sudo cp /home/docker/$BACKUP_FILE /srv/docker/gitlab/data/backups"
-  docker-compose start gitlab
+  docker-machine ssh $machine "sudo cp /home/docker/$BACKUP_FILE /srv/docker/gitlab/data/backups/"
   BACKUP_PATH="/var/opt/gitlab/backups/$BACKUP_FILE"
 
   # docker-compose exec gitlab wget https://s3.eu-central-1.amazonaws.com/docker-mk-mar-2017/module5/$BACKUP_FILE -P /var/opt/gitlab/backups/
@@ -65,15 +67,18 @@ seed() {
   docker-compose exec gitlab /opt/gitlab/bin/gitlab-rake gitlab:backup:restore BACKUP=$BACKUP
   #####
 
-  #### Add variables
+  ### Add variables
   printf "\nАктуализируем конфигурацию CI"
   for i in `seq 10 16`;
   do
       docker-compose exec -T gitlab gitlab-rails runner "\
-      Ci::Variable.create :key => \"DEV_HOST\", :value => \"$module5_host\", :project_id => $i; "
+      Ci::Variable.create :key => \"DEV_HOST\", :value => \"$module5_host\", :project_id => $i;
+      Ci::Variable.create :key => \"BUILD_TOKEN\", :value => \"$BUILD_TOKEN\", :project_id => $i; "
       printf "."
   done
-  #####
+  ####
+  docker-compose restart gitlab
+  ####
 }
 # Build CI images
 
@@ -85,6 +90,7 @@ create_images() {
   DST_CERTS=images/docker-git-compose/certs
 
   printf "\n\n\nСоздаем образ для CI агента\n"
+
 
   while [ $(curl --write-out %{http_code} --silent --output /dev/null http://$module5_host/users/sign_in) -ne 200 ]; do
     sleep 1
