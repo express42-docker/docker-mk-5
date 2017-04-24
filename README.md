@@ -33,6 +33,11 @@ $ cd docker-mk-5-new
 Запустить процесс развертывания в AWS и ждать завершения
 ```
 mk-helpers/preseed.sh --full
+...
+Адрес вашего сервера: <Адрес вашей docker machine>
+Gitlab login: root
+Gitlab password: dockermk
+
 ```
 Для развертывания в parallels или virtualbox указать флаг 'p' или 'v' соответственно
 ```
