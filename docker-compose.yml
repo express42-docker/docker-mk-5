@@ -41,7 +41,7 @@ services:
       - RUNNER_NAME=dockermk
       - RUNNER_EXECUTOR=docker
       - DOCKER_PRIVILEGED=true
-      - DOCKER_NETWORK_MODE=dockermk5_default
+      - DOCKER_NETWORK_MODE=dockermk5new_default
     depends_on:
       - gitlab
     restart: always

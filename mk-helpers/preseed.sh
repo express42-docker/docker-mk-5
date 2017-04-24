@@ -17,7 +17,7 @@ provision() {
     # Set machine vars
       source mk-helpers/env.vars
     # Setup infrastructure
-    docker-compose --project-name dockermk5 up -d
+    docker-compose up -d
 
     printf "\n\n\nСоздаем пользователя и обновляем регистрацию\n"
 
@@ -36,7 +36,7 @@ provision() {
       docker-machine ssh $machine "sudo /bin/sh -c 'echo ${module5_host} $DOCKER_REGISTRY >> /etc/hosts'"
     fi
 
-    if ! docker-machine ssh $machine sudo test -e /etc/docker/daemon.json  ; then
+    if ! docker-machine ssh $machine "sudo test -e /etc/docker/daemon.json"  ; then
       docker-machine ssh $machine "echo {\'insecure-registries\':[\'$DOCKER_REGISTRY\']} |  tr \"'\" '\"' | sudo  tee /etc/docker/daemon.json"
       docker-machine ssh $machine sudo /etc/init.d/docker restart
     fi
@@ -54,7 +54,7 @@ seed() {
   BACKUP_FILE=${BACKUP}_gitlab_backup.tar
 
   printf "Подготовка проектов\n"
-  docker-machine scp mk-helpers/$BACKUP_FILE $machine:~/ls
+  docker-machine scp mk-helpers/$BACKUP_FILE $machine:~/
   docker-machine ssh $machine "sudo cp ~/$BACKUP_FILE /srv/docker/gitlab/data/backups/"
 
   # docker-compose exec gitlab wget https://s3.eu-central-1.amazonaws.com/docker-mk-mar-2017/module5/$BACKUP_FILE -P /var/opt/gitlab/backups/
