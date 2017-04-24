@@ -9,8 +9,8 @@ provision() {
   if [[ ! $(docker-machine status $machine) = "Running" ]]; then
     printf "\nСоздаем сервер с Gitlab CI\n"
     case $1 in
-      'p' ) docker-machine create -d parallels --parallels-cpu-count 4 --parallels-disk-size "26000" --parallels-memory "4048" $machine;;
-      'v' ) docker-machine create -d virtualbox --virtualbox-cpu-count 4 --virtualbox-disk-size "26000" --virtualbox-memory "4048" $machine;;
+      '-p' ) docker-machine create -d parallels --parallels-cpu-count 4 --parallels-disk-size "26000" --parallels-memory "4048" $machine;;
+      '-v' ) docker-machine create -d virtualbox --virtualbox-cpu-count 4 --virtualbox-disk-size "26000" --virtualbox-memory "4048" $machine;;
       * ) docker-machine create -d amazonec2 --amazonec2-root-size "12" --amazonec2-instance-type "t2.medium" --amazonec2-region "eu-central-1" --amazonec2-subnet-id "subnet-ccbf57a5" $machine;;
     esac
   fi
@@ -138,6 +138,8 @@ case $1 in
       --create_images - create base docker images for ci builds and push them to registry
       --runner - reconfigure gitlab ci runner
       --full - fulfill all presented stages
+      -p - along with --provision used to up parallels env
+      -v - along with --provision used to up virtualbox env
       \n"
 esac
 

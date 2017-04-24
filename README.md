@@ -6,14 +6,22 @@
 ```
 $ mk-helpers/preseed.sh
 Usage:
---provision - provision VM and deploy gitlab on it
---seed - seed projects from backup
---create_images - create base docker images for ci builds and push them to registry
---runner - reconfigure gitlab ci runner
---full - fulfill all presented stages
+--provision        -        provision VM and deploy gitlab on it
+--seed             -        seed projects from backup
+--create_images    -        create base docker images for ci builds and push them to registry
+--runner           -        reconfigure gitlab ci runner
+--full             -        fulfill all presented actions
+-p                 -        along with --provision used to up parallels env
+-v                 -        along with --provision used to up virtualbox env
 ```
 
 ## Getting started
+
+Скачать сам репозиторий
+```
+$ git clone https://github.com:chromko/docker-mk-5-new.git
+$ cd docker-mk-5-new
+```
 
 Скачать репозиторий с необходимыми данными
 ```
@@ -24,11 +32,7 @@ $ unzip data.zip && rm -f data.zip
 ```
 NAME=your_name
 ```
-Скачать сам репозиторий
-```
-$ git clone https://github.com:chromko/docker-mk-5-new.git
-$ cd docker-mk-5-new
-```
+
 
 Запустить процесс развертывания в AWS и ждать завершения
 ```
@@ -39,9 +43,9 @@ Gitlab login: root
 Gitlab password: dockermk
 
 ```
-Для развертывания в parallels или virtualbox указать флаг 'p' или 'v' соответственно
+Для развертывания в parallels или virtualbox указать флаг '-p' или '-v' соответственно
 ```
-mk-helpers/preseed.sh --full p
+mk-helpers/preseed.sh --full -p
 ```
 
 Для подключения к docker-engine на созданной ВМ запустить:
