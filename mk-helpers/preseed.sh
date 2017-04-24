@@ -11,13 +11,13 @@ provision() {
     case $1 in
       'p' ) docker-machine create -d parallels --parallels-cpu-count 4 --parallels-disk-size "26000" --parallels-memory "4048" $machine;;
       'v' ) docker-machine create -d virtualbox --virtualbox-cpu-count 4 --virtualbox-disk-size "26000" --virtualbox-memory "4048" $machine;;
-      * ) docker-machine create -d amazonec2 --amazonec2-root-size "60" --amazonec2-instance-type "t2.large" --amazonec2-region "eu-central-1" --amazonec2-subnet-id "subnet-ccbf57a5" $machine;;
+      * ) docker-machine create -d amazonec2 --amazonec2-root-size "12" --amazonec2-instance-type "t2.medium" --amazonec2-region "eu-central-1" --amazonec2-subnet-id "subnet-ccbf57a5" $machine;;
     esac
   fi
     # Set machine vars
       source mk-helpers/env.vars
     # Setup infrastructure
-    docker-compose up -d
+    docker-compose --project-name dockermk5 up -d
 
     printf "\n\n\nСоздаем пользователя и обновляем регистрацию\n"
 
@@ -32,11 +32,11 @@ provision() {
 
     printf "\n\n\nГотовим окружение к использованию  локального docker registry\n"
     #####  Prepare environment for local registry
-    if ! docker-machine ssh $machine ping $DOCKER_REGISTRY -c 1 -q  ; then
+    if ! docker-machine ssh $machine "ping $DOCKER_REGISTRY -c 1 &>  /dev/null" ; then
       docker-machine ssh $machine "sudo /bin/sh -c 'echo ${module5_host} $DOCKER_REGISTRY >> /etc/hosts'"
     fi
 
-    if ! docker-machine ssh $machine test -e /etc/docker/daemon.json  ; then
+    if ! docker-machine ssh $machine sudo test -e /etc/docker/daemon.json  ; then
       docker-machine ssh $machine "echo {\'insecure-registries\':[\'$DOCKER_REGISTRY\']} |  tr \"'\" '\"' | sudo  tee /etc/docker/daemon.json"
       docker-machine ssh $machine sudo /etc/init.d/docker restart
     fi
@@ -53,19 +53,17 @@ provision() {
 }
 
 seed() {
-  # Create User password
+
   BACKUP_FILE=${BACKUP}_gitlab_backup.tar
-  #####
+
   printf "Подготовка проектов\n"
-  docker-machine scp mk-helpers/$BACKUP_FILE  $machine:/home/docker
-  docker-machine ssh $machine "sudo cp /home/docker/$BACKUP_FILE /srv/docker/gitlab/data/backups/"
-  BACKUP_PATH="/var/opt/gitlab/backups/$BACKUP_FILE"
+  docker-machine scp mk-helpers/$BACKUP_FILE $machine:~/ls
+  docker-machine ssh $machine "sudo cp ~/$BACKUP_FILE /srv/docker/gitlab/data/backups/"
 
   # docker-compose exec gitlab wget https://s3.eu-central-1.amazonaws.com/docker-mk-mar-2017/module5/$BACKUP_FILE -P /var/opt/gitlab/backups/
 
-  printf "Импортируем проекты\nОтвечаем 'yes' на вопросы из терминала\n"
-  docker-compose exec gitlab /opt/gitlab/bin/gitlab-rake gitlab:backup:restore BACKUP=$BACKUP
-  #####
+  printf "Импортируем проекты\n"
+  docker-compose exec gitlab sh -c "yes yes | /opt/gitlab/bin/gitlab-rake gitlab:backup:restore BACKUP=$BACKUP"
 
   ### Add variables
   printf "\nАктуализируем конфигурацию CI"
@@ -75,12 +73,11 @@ seed() {
       Ci::Variable.create :key => \"DEV_HOST\", :value => \"$module5_host\", :project_id => $i;
       Ci::Variable.create :key => \"BUILD_TOKEN\", :value => \"$BUILD_TOKEN\", :project_id => $i; "
       printf "."
+
   done
-  ####
+
   docker-compose restart gitlab
-  ####
 }
-# Build CI images
 
 # Create gitlab CI images
 
@@ -89,16 +86,15 @@ create_images() {
   SRC_CERTS=~/.docker/machine/machines/$machine/*.pem
   DST_CERTS=images/docker-git-compose/certs
 
-  printf "\n\n\nСоздаем образ для CI агента\n"
-
+  printf "\n\n\nЖдём загрузки Gitlab\n"
 
   while [ $(curl --write-out %{http_code} --silent --output /dev/null http://$module5_host/users/sign_in) -ne 200 ]; do
     sleep 1
   done
 
   docker login -u $GITLAB_USER -p $GITLAB_PASSWORD $DOCKER_REGISTRY
-
-  if ! docker pull $DOCKER_REGISTRY/module5/docker:git-compose ; then
+  printf "\n\n\nСоздаем образ для CI агента\n"
+  if ! docker pull $DOCKER_REGISTRY/module5/docker:git-compose &> /dev/null ; then
       git clone http://$GITLAB_USER:$GITLAB_PASSWORD@${module5_host}/module5/docker.git --branch git-compose images/docker-git-compose
       if [ ! -d $DST_CERTS ]; then
         printf "\n\n\nКопируем ключи для управления docker\n"
@@ -109,7 +105,7 @@ create_images() {
       docker push $DOCKER_REGISTRY/module5/docker:git-compose
   fi
 
-  if ! docker pull $DOCKER_REGISTRY/module5/docker:dind ; then
+  if ! docker pull $DOCKER_REGISTRY/module5/docker:dind &> /dev/null ; then
     git clone http://$GITLAB_USER:$GITLAB_PASSWORD@${module5_host}/module5/docker.git --branch dind images/docker-dind
     docker build -t $DOCKER_REGISTRY/module5/docker:dind images/docker-dind
     docker push $DOCKER_REGISTRY/module5/docker:dind
@@ -130,11 +126,18 @@ case $1 in
   '--seed'      ) seed;;
   '--create_images') create_images;;
   '--runner' ) runner;;
-  '--all'    )
+  '--full'    )
     provision $2
     seed
     create_images
     runner
     ;;
-  * ) printf  "\nUsage:\n--all\n--provision\n--create_images\n--runner\n"
+  * ) printf  "\
+        Usage:
+      --provision - provision VM and deploy gitlab on it
+      --seed - seed projects from backup
+      --create_images - create base docker images for ci builds and push them to registry
+      --runner - reconfigure gitlab ci runner
+      --full - fulfill all presented stages
+      \n"
 esac

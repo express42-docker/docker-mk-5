@@ -1,7 +1,7 @@
 version: "2.1"
 services:
   gitlab:
-    image: 'gitlab/gitlab-ce:9.0.6-ce.0'
+    image: 'gitlab/gitlab-ce:9.1.0-ce.0'
     restart: always
     hostname: ${module5_host}
     environment:
@@ -41,7 +41,7 @@ services:
       - RUNNER_NAME=dockermk
       - RUNNER_EXECUTOR=docker
       - DOCKER_PRIVILEGED=true
-      - DOCKER_NETWORK_MODE=chromkodockermk5_default
+      - DOCKER_NETWORK_MODE=dockermk5_default
     depends_on:
       - gitlab
     restart: always
