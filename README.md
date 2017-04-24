@@ -22,7 +22,7 @@ $ unzip data.zip && rm -f data.zip
 ```
 В файле data/creds.env выставить значения переменных
 ```
-NAME = your_name
+NAME=your_name
 ```
 Скачать сам репозиторий
 ```
