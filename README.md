@@ -30,7 +30,7 @@ $ git clone https://github.com:chromko/docker-mk-5-new.git
 $ cd docker-mk-5-new
 ```
 
-Запустить процесс развертывания в AWS
+Запустить процесс развертывания в AWS и ждать завершения
 ```
 mk-helpers/preseed.sh --full
 ```
@@ -39,9 +39,11 @@ mk-helpers/preseed.sh --full
 mk-helpers/preseed.sh --full p
 ```
 
-Для подключения к docker-engine на созданной ВМ:
+Для подключения к docker-engine на созданной ВМ запустить:
 ```
 source mk-helpers/env.vars
+docker ps
+....
 ```
 Клонировать репозитории для мк (будут содержаться в папке module5_app):
 ```

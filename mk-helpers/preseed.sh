@@ -47,9 +47,6 @@ provision() {
       docker-machine ssh $machine "sudo sed -i '/^#.*registry\[.enable.\]/s/^#//' $file"
       docker-compose restart gitlab
 
-    printf "\n\nАдрес вашего сервера: $module5_host\n"
-    printf "Gitlab login: $GITLAB_USER\n"
-    printf "Gitlab password: $GITLAB_PASSWORD\n"
 }
 
 seed() {
@@ -143,3 +140,7 @@ case $1 in
       --full - fulfill all presented stages
       \n"
 esac
+
+printf "\n\nАдрес вашего сервера: $module5_host\n"
+printf "Gitlab login: $GITLAB_USER\n"
+printf "Gitlab password: $GITLAB_PASSWORD\n"
