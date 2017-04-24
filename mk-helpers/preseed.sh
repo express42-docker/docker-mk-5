@@ -86,6 +86,8 @@ create_images() {
   SRC_CERTS=~/.docker/machine/machines/$machine/*.pem
   DST_CERTS=images/docker-git-compose/certs
 
+  mkdir images
+
   printf "\n\n\nЖдём загрузки Gitlab\n"
 
   while [ $(curl --write-out %{http_code} --silent --output /dev/null http://$module5_host/users/sign_in) -ne 200 ]; do
