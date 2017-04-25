@@ -61,7 +61,7 @@ seed() {
   printf "Импортируем проекты\n"
   docker-compose exec gitlab sh -c "yes yes | /opt/gitlab/bin/gitlab-rake gitlab:backup:restore BACKUP=$BACKUP"
 
-  ### Add variables
+  ## Add variables
   printf "\nАктуализируем конфигурацию CI"
   for i in `seq 10 16`;
   do
@@ -142,6 +142,11 @@ case $1 in
       \n"
 esac
 
-printf "\n\nАдрес вашего сервера: $module5_host\n"
-printf "Gitlab login: $GITLAB_USER\n"
-printf "Gitlab password: $GITLAB_PASSWORD\n"
+printf "\nЖдём загоузки Gitlab\n"
+while [ $(curl --write-out %{http_code} --silent --output /dev/null http://$module5_host/users/sign_in) -ne 200 ]; do
+  sleep 1
+  printf "."
+done
+printf "\n\nАдрес вашего сервера: ${module5_host}\n"
+printf "Gitlab login: ${GITLAB_USER}\n"
+printf "Gitlab password: ${GITLAB_PASSWORD}\n"
