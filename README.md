@@ -23,16 +23,11 @@ $ git clone https://github.com:chromko/docker-mk-5-new.git
 $ cd docker-mk-5-new
 ```
 
-Скачать репозиторий с необходимыми данными
-```
-$ wget https://s3.eu-central-1.amazonaws.com/docker-mk-mar-2017/module5/data.zip
-$ unzip data.zip && rm -f data.zip
 ```
 В файле data/creds.env выставить значения переменных
 ```
 NAME=your_name
 ```
-
 
 Запустить процесс развертывания в AWS и ждать завершения
 ```
