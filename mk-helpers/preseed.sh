@@ -46,7 +46,6 @@ provision() {
       docker-machine ssh $machine "sudo sed -i '/^#.*registry_enabled/s/^#//' $file"
       docker-machine ssh $machine "sudo sed -i '/^#.*registry\[.enable.\]/s/^#//' $file"
       docker-compose restart gitlab
-
 }
 
 seed() {

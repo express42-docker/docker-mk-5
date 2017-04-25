@@ -1,4 +1,4 @@
-data
+data/ssh
 images/*
 *.tar.gz
 *.zip
