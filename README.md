@@ -48,11 +48,12 @@ mk-helpers/preseed.sh --full -p
 source mk-helpers/env.vars
 docker ps
 ....
-```
+
 Клонировать репозитории для мк (будут содержаться в папке module5_app):
 ```
 sh mk-helpers/clone-repos.sh
 ```
+
 ## Gitlab Workflow
 
 1. Автоматическое развертывание стенда mk-helpers/preseed.sh:
