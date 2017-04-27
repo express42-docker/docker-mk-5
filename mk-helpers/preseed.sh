@@ -142,7 +142,7 @@ case $1 in
       \n"
 esac
 
-printf "\nЖдём загоузки Gitlab\n"
+printf "\nЖдём загрузки Gitlab\n"
 while [ $(curl --write-out %{http_code} --silent --output /dev/null http://$module5_host/users/sign_in) -ne 200 ]; do
   sleep 1
   printf "."
