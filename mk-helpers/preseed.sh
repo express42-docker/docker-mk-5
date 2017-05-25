@@ -29,11 +29,11 @@ provision() {
 
   printf "\nГотовим окружение к использованию локального docker registry\n"
   #####  Prepare environment for local registry
-  if [ `docker-machine ssh $machine "ping $DOCKER_REGISTRY -c 1" &> /dev/null; echo $?` -ne 0 ]; then
+  if ! docker-machine ssh $machine "ping $DOCKER_REGISTRY -c 1" &> /dev/null ; then
     docker-machine ssh $machine "sudo /bin/sh -c 'echo ${module5_host} $DOCKER_REGISTRY >> /etc/hosts'"
   fi
 
-  if [ `docker-machine ssh $machine "sudo test -e /etc/docker/daemon.json" &> /dev/null; echo $?` -ne 0 ]; then
+  if ! docker-machine ssh $machine "sudo test -e /etc/docker/daemon.json" &> /dev/null ; then
     docker-machine ssh $machine "echo {\'insecure-registries\':[\'$DOCKER_REGISTRY\']} |  tr \"'\" '\"' | sudo  tee /etc/docker/daemon.json"
     docker-machine ssh $machine sudo /etc/init.d/docker restart
   fi
@@ -91,6 +91,11 @@ create_images() {
         printf "\n\n\nКопируем ключи для управления docker\n"
         mkdir -p  $DST_CERTS
         cp -r $SRC_CERTS $DST_CERTS
+      fi
+      if [[ "$OSTYPE" == "linux-gnu" ]]; then
+        find . -type f -name Dockerfile -exec sed -i "s/git/1-git/" {} +
+      elif [[ "$OSTYPE" == "darwin"* ]]; then
+        find . -type f -name Dockerfile -exec sed -i '' s/git/1-git/ {} +
       fi
       docker build -t $DOCKER_REGISTRY/module5/docker:git-compose images/docker-git-compose
       docker push $DOCKER_REGISTRY/module5/docker:git-compose
