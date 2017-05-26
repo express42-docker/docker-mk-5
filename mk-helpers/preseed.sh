@@ -92,10 +92,11 @@ create_images() {
         mkdir -p  $DST_CERTS
         cp -r $SRC_CERTS $DST_CERTS
       fi
+      # Temporary hack due docker:git `curl` command removal from image
       if [[ "$OSTYPE" == "linux-gnu" ]]; then
-        find . -type f -name Dockerfile -exec sed -i "s/git/1-git/" {} +
+        find . -type f -name Dockerfile -exec sed -i "s/docker:git/1-git/" {} +
       elif [[ "$OSTYPE" == "darwin"* ]]; then
-        find . -type f -name Dockerfile -exec sed -i '' s/git/1-git/ {} +
+        find . -type f -name Dockerfile -exec sed -i '' s/docker:git/1-git/ {} +
       fi
       docker build -t $DOCKER_REGISTRY/module5/docker:git-compose images/docker-git-compose
       docker push $DOCKER_REGISTRY/module5/docker:git-compose
