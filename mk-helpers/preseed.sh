@@ -8,6 +8,7 @@ provision() {
     case $1 in
       '-p' ) docker-machine create -d parallels --parallels-cpu-count 4 --parallels-disk-size "26000" --parallels-memory "4048" $machine;;
       '-v' ) docker-machine create -d virtualbox --virtualbox-cpu-count 4 --virtualbox-disk-size "26000" --virtualbox-memory "4048" $machine;;
+      '-g' ) docker-machine create -d google --google-project $GOOGLE_PROJECT_ID --google-zone europe-west1-c --google-machine-type n1-standard-1 $machine;;
       * ) docker-machine create -d amazonec2 --amazonec2-root-size "12" --amazonec2-instance-type "t2.medium" --amazonec2-region "eu-central-1" --amazonec2-subnet-id "subnet-ccbf57a5" $machine;;
     esac
   fi
